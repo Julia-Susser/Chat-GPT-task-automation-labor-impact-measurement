@@ -2,38 +2,37 @@ const ExcelJS = require('exceljs');
 
 class ExcelHandler {
     constructor() {
+        this.filePath = '../output/tasks-langchain.xlsx'
         this.workbook = new ExcelJS.Workbook();
+        this.loadWorkbook()
+        
     }
 
     async loadWorkbook(filePath) {
-        await this.workbook.xlsx.readFile(filePath);
+        try {
+            await this.workbook.xlsx.readFile(this.filePath);
+        } catch (error) {
+        }
     }
 
-    getWorksheet(sheetName) {
-        return this.workbook.getWorksheet(sheetName);
-    }
-
-    async addWorksheet(sheetName) {
-        this.workbook.addWorksheet(sheetName);
-        await this.save();
-    }
-
-    async writeRowToExcel(sheetName, rowNumber, colStart, data, bold = false) {
-        const worksheet = this.workbook.getWorksheet(sheetName);
-        const row = worksheet.getRow(rowNumber);
-        data.forEach((item, index) => {
-            const cell = row.getCell(colStart + index);
-            cell.value = item;
-            if (bold) {
-                cell.font = { bold: true };
-            }
+    
+   async writeArrayToExcel(data, sheetname) {
+        var worksheet = this.workbook.getWorksheet(sheetname);
+        if (!worksheet) {
+            worksheet = this.workbook.addWorksheet(sheetname);
+        }
+       
+        data.forEach((row, rowIndex) => {
+            row.forEach((cell, cellIndex) => {
+                worksheet.getCell(rowIndex + 1, cellIndex + 1).value = cell;
+            });
         });
-        row.commit();
-        await this.save();
+
+        await this.save()
     }
 
     async save() {
-        await this.workbook.xlsx.writeFile('path_to_save.xlsx');
+        await this.workbook.xlsx.writeFile(this.filePath);
     }
 
     async readExcelFile(filePath) {

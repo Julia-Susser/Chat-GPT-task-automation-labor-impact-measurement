@@ -45,7 +45,7 @@ class LangChainPrompting {
         vars.context = situation
         history.push(["user", prompt], ["system", situation])
         var context = ChatPromptTemplate.fromMessages(history);
-
+        this.excelHandler.writeArrayToExcel(history,occupation)
         var prompt = await PromptHandler.getPrompt(2, vars)
         var result = await this.invoke(prompt,context)
         var subtasks = PromptHandler.splitResponse(result)
@@ -54,6 +54,7 @@ class LangChainPrompting {
         for (let i = 0; i < subtasks.length; i++) {
           var subtask = subtasks[i];
           vars.subtask = subtask
+          this.excelHandler.writeArrayToExcel(history,occupation)
 
           history.push(["user", prompt], ["system", subtask])
           var context = ChatPromptTemplate.fromMessages(history);
@@ -69,11 +70,11 @@ class LangChainPrompting {
             var result = await this.invoke(prompt,context)
             history.push(["user", prompt], ["system", result])
             console.log(history)
-            break;
+            this.excelHandler.writeArrayToExcel(history,occupation)
+
           }
 
 
-          break;
         }
         break;
       }
