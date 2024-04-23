@@ -29,6 +29,8 @@ class LangChainPrompting {
     async prompting(prompts){
       var occupation = "Lawyers"
       var tasks = await GovOccupations.getGovTask(occupation)
+      occupation = occupation.slice(0, -1); //remove "s"
+
       var task = tasks[0]
       var history = []
       var context = ChatPromptTemplate.fromMessages(history);
@@ -72,8 +74,17 @@ class LangChainPrompting {
             console.log(history)
             this.excelHandler.writeArrayToExcel(history,occupation)
 
-          }
+            for (let i = 0; i < 2; i++){
+              var prompt = await PromptHandler.getPrompt(5+i, vars)
+              var result = await this.invoke(prompt,context)
+              history.push(["user", prompt], ["system", result])
+            }
 
+            this.excelHandler.writeArrayToExcel(history,occupation)
+            break
+
+          }
+          break
 
         }
         break;
